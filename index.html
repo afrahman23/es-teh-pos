@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Kasir Kilat Es Teh Keliling</title>
+  <style>
+    /* ============================================================
+       CSS CUSTOM PROPERTIES — TEMA WARNA
+       High-contrast, outdoor-readable colour palette (WCAG AA)
+       ============================================================ */
+    :root {
+      --clr-bg:          #0d1117;
+      --clr-surface:     #161b22;
+      --clr-surface-2:   #21262d;
+      --clr-border:      #30363d;
+      --clr-text:        #f0f6fc;
+      --clr-muted:       #8b949e;
+      --clr-accent-cyan: #39d0d8;
+      --clr-gelas:       #f9a825; /* amber — warm like tea */
+      --clr-gelas-dark:  #e65100;
+      --clr-plastik:     #29b6f6; /* sky-blue — cool plastic bag */
+      --clr-plastik-dark:#0277bd;
+      --clr-danger:      #f85149;
+      --clr-success:     #3fb950;
+      --clr-minus:       #6e7681;
+
+      --radius-lg: 20px;
+      --radius-sm: 10px;
+      --shadow:    0 4px 24px rgba(0,0,0,.55);
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      padding: 0 0 env(safe-area-inset-bottom);
+    }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 10px;
+      background: var(--clr-surface);
+      border-bottom: 1px solid var(--clr-border);
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: var(--clr-accent-cyan);
+      line-height: 1.2;
+    }
+    .header-title small {
+      display: block;
+      font-size: .7rem;
+      font-weight: 400;
+      color: var(--clr-muted);
+      letter-spacing: 0;
+    }
+
+    /* Mute toggle button */
+    #btnMute {
+      background: var(--clr-surface-2);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-sm);
+      color: var(--clr-text);
+      font-size: 1.3rem;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+    #btnMute:active { opacity: .7; }
+
+    /* ============================================================
+       MAIN SCROLL AREA
+       ============================================================ */
+    main {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 14px 12px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ============================================================
+       COUNTER CARDS — GELAS & PLASTIK
+       ============================================================ */
+    .counters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .counter-card {
+      background: var(--clr-surface);
+      border: 2px solid var(--clr-border);
+      border-radius: var(--radius-lg);
+      padding: 10px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Live counter number above button */
+    .counter-card .live-count {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -.02em;
+    }
+    .counter-card .live-subtotal {
+      font-size: .78rem;
+      font-weight: 500;
+      color: var(--clr-muted);
+      margin-bottom: 2px;
+    }
+
+    /* BIG tap button */
+    .btn-tap {
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 1rem; /* base; label & icon use their own sizes */
+      font-weight: 800;
+      letter-spacing: .04em;
+      cursor: pointer;
+      touch-action: manipulation;
+      padding: 18px 8px 20px;
+      line-height: 1.1;
+      transition: transform .07s ease, filter .07s ease;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+    .btn-tap:active {
+      transform: scale(.94);
+      filter: brightness(.85);
+    }
+    .btn-tap .btn-icon {
+      display: block;
+      font-size: 2.4rem;
+      line-height: 1;
+      margin-bottom: 4px;
+      /* SVG inherits the button text colour via currentColor */
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,.18));
+    }
+    .btn-tap .btn-label {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+    .btn-tap .btn-price {
+      display: block;
+      font-size: .78rem;
+      font-weight: 500;
+      opacity: .85;
+      margin-top: 4px;
+    }
+
+    /* Gelas colours */
+    .btn-tap.gelas {
+      background: var(--clr-gelas);
+      color: #1a1200;
+    }
+    .counter-card.gelas { border-color: var(--clr-gelas); }
+    .counter-card.gelas .live-count { color: var(--clr-gelas); }
+
+    /* Plastik colours */
+    .btn-tap.plastik {
+      background: var(--clr-plastik);
+      color: #001824;
+    }
+    .counter-card.plastik { border-color: var(--clr-plastik); }
+    .counter-card.plastik .live-count { color: var(--clr-plastik); }
+
+    /* Minus / correction button */
+    .btn-minus {
+      background: var(--clr-surface-2);
+      border: 1px solid var(--clr-border);
+      border-radius: 999px;
+      color: var(--clr-muted);
+      font-size: .9rem;
+      font-weight: 700;
+      padding: 5px 18px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: background .1s;
+      user-select: none;
+    }
+    .btn-minus:active { background: var(--clr-danger); color: #fff; }
+
+    /* ============================================================
+       TOTAL SUMMARY PANEL
+       ============================================================ */
+    .summary-panel {
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+    }
+    .summary-panel h2 {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--clr-muted);
+      margin-bottom: 10px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 4px 0;
+    }
+    .summary-row .label { font-size: .9rem; color: var(--clr-muted); }
+    .summary-row .value { font-size: 1rem; font-weight: 700; }
+    .summary-divider {
+      height: 1px;
+      background: var(--clr-border);
+      margin: 8px 0;
+    }
+    .summary-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 6px 0 2px;
+    }
+    .summary-total-row .label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--clr-text);
+    }
+    .summary-total-row .value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--clr-success);
+    }
+
+    /* ============================================================
+       RESET BUTTON
+       ============================================================ */
+    #btnReset {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1.5px solid var(--clr-danger);
+      border-radius: var(--radius-sm);
+      color: var(--clr-danger);
+      font-size: .9rem;
+      font-weight: 700;
+      padding: 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+      letter-spacing: .04em;
+      transition: background .12s;
+    }
+    #btnReset:active { background: var(--clr-danger); color: #fff; }
+
+    /* ============================================================
+       LOG / ACTIVITY PANEL
+       ============================================================ */
+    .log-panel {
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .log-header {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--clr-border);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--clr-muted);
+    }
+    #logList {
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px 0;
+      overscroll-behavior: contain;
+    }
+    .log-item {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 6px 14px;
+      font-size: .82rem;
+      border-bottom: 1px solid rgba(48,54,61,.5);
+      animation: fadeSlideIn .18s ease;
+    }
+    .log-item:last-child { border-bottom: none; }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .log-time { color: var(--clr-muted); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .log-desc { flex: 1; }
+    .log-desc.gelas  { color: var(--clr-gelas); }
+    .log-desc.plastik{ color: var(--clr-plastik); }
+    .log-desc.minus  { color: var(--clr-minus); }
+    .log-empty { padding: 14px; text-align: center; color: var(--clr-muted); font-size: .82rem; }
+
+    /* ============================================================
+       EXPORT BUTTONS
+       ============================================================ */
+    .export-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .btn-export {
+      background: var(--clr-surface-2);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-sm);
+      color: var(--clr-text);
+      font-size: .88rem;
+      font-weight: 600;
+      padding: 13px 8px;
+      cursor: pointer;
+      touch-action: manipulation;
+      text-align: center;
+      transition: background .12s;
+      line-height: 1.3;
+    }
+    .btn-export:active { background: var(--clr-accent-cyan); color: #001a1b; }
+    .btn-export .icon { display: block; font-size: 1.3rem; margin-bottom: 3px; }
+
+    /* ============================================================
+       TOAST NOTIFICATION
+       ============================================================ */
+    #toast {
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      background: var(--clr-success);
+      color: #001a08;
+      font-size: .9rem;
+      font-weight: 700;
+      padding: 10px 22px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .25s ease;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    #toast.visible { opacity: 1; }
+
+    /* ============================================================
+       RIPPLE EFFECT
+       ============================================================ */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: rippleAnim .4s linear;
+      background: rgba(255,255,255,.35);
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ============================================================
+       RESPONSIVE — slightly larger screens
+       ============================================================ */
+    @media (min-width: 420px) {
+      .btn-tap { padding: 22px 8px 24px; }
+      .btn-tap .btn-icon { font-size: 2.8rem; }
+      .btn-tap .btn-label { font-size: 1.5rem; }
+      .counter-card .live-count { font-size: 3.6rem; }
+    }
+    @media (min-width: 640px) {
+      main { max-width: 480px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <header>
+    <div class="header-title">
+      ☕ Kasir Kilat
+      <small>Es Teh Keliling</small>
+    </div>
+    <button id="btnMute" aria-label="Mute / Unmute suara" title="Mute/Unmute">🔔</button>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main>
+
+    <!-- (1)(2) Counter Cards + Tap Buttons -->
+    <div class="counters-grid">
+
+      <!-- GELAS -->
+      <div class="counter-card gelas" id="cardGelas">
+        <div class="live-count" id="countGelas">0</div>
+        <div class="live-subtotal" id="subtotalGelas">Rp 0</div>
+        <button class="btn-tap gelas" id="btnGelas" aria-label="Tambah Gelas">
+          <!-- Glass with straw SVG -->
+          <span class="btn-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8 l3 28 h18 l3-28Z"/><line x1="22" y1="8" x2="22" y2="2"/><path d="M14 8 h16"/><line x1="30" y1="4" x2="22" y2="8"/><ellipse cx="22" cy="36" rx="9" ry="2.5" fill="currentColor" opacity=".25"/></svg></span>
+          <span class="btn-label">GELAS</span>
+          <span class="btn-price">Rp 5.000</span>
+        </button>
+        <button class="btn-minus" id="btnMinusGelas" aria-label="Kurangi 1 Gelas">−1 Gelas</button>
+      </div>
+
+      <!-- PLASTIK -->
+      <div class="counter-card plastik" id="cardPlastik">
+        <div class="live-count" id="countPlastik">0</div>
+        <div class="live-subtotal" id="subtotalPlastik">Rp 0</div>
+        <button class="btn-tap plastik" id="btnPlastik" aria-label="Tambah Plastik">
+          <!-- Plastic bag with straw SVG -->
+          <span class="btn-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 14 Q14 8 17 6 Q20 4 22 7 Q24 4 27 6 Q30 8 28 14"/><path d="M16 14 l-3 20 Q13 38 22 38 Q31 38 31 34 L28 14 Z"/><line x1="24" y1="10" x2="20" y2="2"/><line x1="20" y1="2" x2="22" y2="6"/></svg></span>
+          <span class="btn-label">PLASTIK</span>
+          <span class="btn-price">Rp 3.500</span>
+        </button>
+        <button class="btn-minus" id="btnMinusPlastik" aria-label="Kurangi 1 Plastik">−1 Plastik</button>
+      </div>
+
+    </div>
+
+    <!-- (4) Total Summary -->
+    <div class="summary-panel" id="summaryPanel">
+      <h2>📊 Ringkasan Penjualan</h2>
+      <div class="summary-row">
+        <span class="label">Gelas terjual</span>
+        <span class="value" id="sumGelas" style="color:var(--clr-gelas)">0 pcs — Rp 0</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Plastik terjual</span>
+        <span class="value" id="sumPlastik" style="color:var(--clr-plastik)">0 pcs — Rp 0</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-row">
+        <span class="label">Total Kemasan Terjual</span>
+        <span class="value" id="sumTotalPcs">0 pcs</span>
+      </div>
+      <div class="summary-total-row">
+        <span class="label">Total Uang Masuk</span>
+        <span class="value" id="sumTotalRp">Rp 0</span>
+      </div>
+    </div>
+
+    <!-- (5) Reset Button -->
+    <button id="btnReset">⟳ Reset Shift Baru</button>
+
+    <!-- (6) Log Riwayat Ketukan -->
+    <div class="log-panel">
+      <div class="log-header">🕐 Log Riwayat Ketukan</div>
+      <div id="logList">
+        <div class="log-empty" id="logEmpty">Belum ada ketukan tercatat.</div>
+      </div>
+    </div>
+
+    <!-- (7) Export Buttons -->
+    <div class="export-row">
+      <button class="btn-export" id="btnCopy" aria-label="Salin laporan ke clipboard">
+        <span class="icon">📋</span>Salin Laporan
+      </button>
+      <button class="btn-export" id="btnCsv" aria-label="Unduh laporan CSV">
+        <span class="icon">💾</span>Unduh CSV
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Toast notification -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ============================================================
+       JAVASCRIPT — ALL LOGIC
+       ============================================================ -->
+  <script>
+    /* ----------------------------------------------------------
+       CONSTANTS & PRICES
+       ---------------------------------------------------------- */
+    const PRICE_GELAS   = 5000;
+    const PRICE_PLASTIK = 3500;
+    const LS_KEY        = 'kasirkilat_v1';
+
+    /* ----------------------------------------------------------
+       STATE
+       ---------------------------------------------------------- */
+    let state = {
+      gelas:   0,
+      plastik: 0,
+      log:     []   // [{ts, type, delta, price}]
+    };
+
+    /* ----------------------------------------------------------
+       LOCALSTORAGE PERSISTENCE
+       ---------------------------------------------------------- */
+    function saveState() {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed.gelas === 'number')   state.gelas   = parsed.gelas;
+          if (typeof parsed.plastik === 'number') state.plastik = parsed.plastik;
+          if (Array.isArray(parsed.log))           state.log     = parsed.log;
+        }
+      } catch (e) { /* ignore corrupt data */ }
+    }
+
+    /* ----------------------------------------------------------
+       WEB AUDIO — COIN CLINK SYNTHESIZER
+       ---------------------------------------------------------- */
+    let audioCtx    = null;
+    let isMuted     = false;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      /* Resume if suspended (browser policy) */
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      return audioCtx;
+    }
+
+    function playClinkSound() {
+      if (isMuted) return;
+      try {
+        const ctx = getAudioCtx();
+        const now = ctx.currentTime;
+
+        /* Metallic clink: short sine burst with quick exponential decay */
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(1800, now);
+        osc1.frequency.exponentialRampToValueAtTime(900, now + 0.08);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(2600, now);
+        osc2.frequency.exponentialRampToValueAtTime(1200, now + 0.06);
+
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.25);
+        osc2.stop(now + 0.25);
+      } catch (e) { /* audio not available — silent fallback */ }
+    }
+
+    /* ----------------------------------------------------------
+       MUTE TOGGLE
+       ---------------------------------------------------------- */
+    const btnMute = document.getElementById('btnMute');
+
+    btnMute.addEventListener('click', () => {
+      isMuted = !isMuted;
+      btnMute.textContent = isMuted ? '🔕' : '🔔';
+      btnMute.setAttribute('aria-label', isMuted ? 'Aktifkan suara' : 'Matikan suara');
+    });
+
+    /* ----------------------------------------------------------
+       RIPPLE EFFECT UTILITY
+       ---------------------------------------------------------- */
+    function addRipple(btn, e) {
+      const rect   = btn.getBoundingClientRect();
+      const size   = Math.max(rect.width, rect.height);
+      const x      = (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || rect.left + rect.width/2) - rect.left - size/2;
+      const y      = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || rect.top + rect.height/2) - rect.top - size/2;
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
+      btn.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    }
+
+    /* ----------------------------------------------------------
+       TOAST NOTIFICATION
+       ---------------------------------------------------------- */
+    let toastTimer = null;
+    const toastEl  = document.getElementById('toast');
+
+    function showToast(msg, duration = 2200) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('visible'), duration);
+    }
+
+    /* ----------------------------------------------------------
+       FORMAT HELPERS
+       ---------------------------------------------------------- */
+    function formatRp(amount) {
+      /* Indonesian Rupiah — no decimal, dot-separated thousands */
+      return 'Rp ' + amount.toLocaleString('id-ID');
+    }
+
+    function formatTimestamp(isoString) {
+      const d = new Date(isoString);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    function formatDateId(date = new Date()) {
+      const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const months = ['Januari','Februari','Maret','April','Mei','Juni',
+                      'Juli','Agustus','September','Oktober','November','Desember'];
+      return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    function isoDate(date = new Date()) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    /* ----------------------------------------------------------
+       UI RENDER
+       ---------------------------------------------------------- */
+    function render() {
+      const subG = state.gelas   * PRICE_GELAS;
+      const subP = state.plastik * PRICE_PLASTIK;
+      const totPcs = state.gelas + state.plastik;
+      const totRp  = subG + subP;
+
+      /* Live counters */
+      document.getElementById('countGelas').textContent   = state.gelas;
+      document.getElementById('subtotalGelas').textContent = formatRp(subG);
+      document.getElementById('countPlastik').textContent  = state.plastik;
+      document.getElementById('subtotalPlastik').textContent = formatRp(subP);
+
+      /* Summary panel */
+      document.getElementById('sumGelas').textContent   = `${state.gelas} pcs — ${formatRp(subG)}`;
+      document.getElementById('sumPlastik').textContent = `${state.plastik} pcs — ${formatRp(subP)}`;
+      document.getElementById('sumTotalPcs').textContent = `${totPcs} pcs`;
+      document.getElementById('sumTotalRp').textContent  = formatRp(totRp);
+
+      /* Log */
+      renderLog();
+    }
+
+    function renderLog() {
+      const list    = document.getElementById('logList');
+      const empty   = document.getElementById('logEmpty');
+
+      /* Remove all existing log items (keep empty placeholder) */
+      const existing = list.querySelectorAll('.log-item');
+      existing.forEach(el => el.remove());
+
+      if (state.log.length === 0) {
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+
+      /* Render newest first (reverse-chronological) */
+      for (let i = state.log.length - 1; i >= 0; i--) {
+        const entry = state.log[i];
+        const item  = document.createElement('div');
+        item.className = 'log-item';
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'log-time';
+        timeSpan.textContent = formatTimestamp(entry.ts);
+
+        const descSpan = document.createElement('span');
+        const isPlus   = entry.delta > 0;
+        const sign     = isPlus ? '+' : '';
+        const label    = entry.type === 'gelas' ? 'Gelas' : 'Plastik';
+        const priceStr = `(${isPlus ? '+' : ''}${formatRp(entry.price)})`;
+
+        if (!isPlus) {
+          descSpan.className = 'log-desc minus';
+        } else {
+          descSpan.className = `log-desc ${entry.type}`;
+        }
+        descSpan.textContent = `${sign}${entry.delta} ${label} ${priceStr}`;
+
+        item.appendChild(timeSpan);
+        item.appendChild(document.createTextNode(' — '));
+        item.appendChild(descSpan);
+        list.appendChild(item);
+      }
+    }
+
+    /* ----------------------------------------------------------
+       RECORD LOG ENTRY
+       ---------------------------------------------------------- */
+    function recordLog(type, delta) {
+      const price = delta * (type === 'gelas' ? PRICE_GELAS : PRICE_PLASTIK);
+      state.log.push({ ts: new Date().toISOString(), type, delta, price });
+    }
+
+    /* ----------------------------------------------------------
+       TAP HANDLERS
+       ---------------------------------------------------------- */
+    function handleTap(type, btn, e) {
+      playClinkSound();
+      addRipple(btn, e);
+
+      if (type === 'gelas') {
+        state.gelas = Math.max(0, state.gelas + 1);
+        recordLog('gelas', 1);
+      } else {
+        state.plastik = Math.max(0, state.plastik + 1);
+        recordLog('plastik', 1);
+      }
+
+      saveState();
+      render();
+    }
+
+    function handleMinus(type, e) {
+      if (type === 'gelas') {
+        if (state.gelas <= 0) return;
+        state.gelas--;
+        recordLog('gelas', -1);
+      } else {
+        if (state.plastik <= 0) return;
+        state.plastik--;
+        recordLog('plastik', -1);
+      }
+
+      playClinkSound();
+      saveState();
+      render();
+    }
+
+    /* Attach tap listeners — using both touchstart and click
+       for instant response on mobile without 300ms delay */
+    function attachTapListener(btn, handler) {
+      let touchFired = false;
+
+      btn.addEventListener('touchstart', (e) => {
+        touchFired = true;
+        handler(e);
+        /* Prevent ghost click */
+        e.preventDefault();
+      }, { passive: false });
+
+      btn.addEventListener('click', (e) => {
+        if (touchFired) { touchFired = false; return; }
+        handler(e);
+      });
+    }
+
+    const btnGelas        = document.getElementById('btnGelas');
+    const btnPlastik      = document.getElementById('btnPlastik');
+    const btnMinusGelas   = document.getElementById('btnMinusGelas');
+    const btnMinusPlastik = document.getElementById('btnMinusPlastik');
+
+    attachTapListener(btnGelas,        (e) => handleTap('gelas',   btnGelas,   e));
+    attachTapListener(btnPlastik,      (e) => handleTap('plastik', btnPlastik, e));
+    attachTapListener(btnMinusGelas,   (e) => handleMinus('gelas',   e));
+    attachTapListener(btnMinusPlastik, (e) => handleMinus('plastik', e));
+
+    /* ----------------------------------------------------------
+       RESET — with confirmation dialog
+       ---------------------------------------------------------- */
+    document.getElementById('btnReset').addEventListener('click', () => {
+      const confirmed = confirm(
+        '⚠️ Reset Shift Baru?\n\n' +
+        'Semua data penjualan dan riwayat ketukan akan dihapus.\n' +
+        'Pastikan sudah menyalin atau mengunduh laporan terlebih dahulu.'
+      );
+      if (!confirmed) return;
+
+      state.gelas   = 0;
+      state.plastik = 0;
+      state.log     = [];
+      saveState();
+      render();
+      showToast('✅ Shift baru dimulai. Data telah direset.');
+    });
+
+    /* ----------------------------------------------------------
+       BUILD REPORT TEXT
+       ---------------------------------------------------------- */
+    function buildReportText() {
+      const now    = new Date();
+      const subG   = state.gelas   * PRICE_GELAS;
+      const subP   = state.plastik * PRICE_PLASTIK;
+      const totPcs = state.gelas + state.plastik;
+      const totRp  = subG + subP;
+
+      let lines = [
+        '============================',
+        '   LAPORAN HARIAN ES TEH',
+        '============================',
+        `Tanggal   : ${formatDateId(now)}`,
+        '----------------------------',
+        `Gelas     : ${state.gelas} pcs x Rp 5.000 = ${formatRp(subG)}`,
+        `Plastik   : ${state.plastik} pcs x Rp 3.500 = ${formatRp(subP)}`,
+        '----------------------------',
+        `Total Kemasan Terjual : ${totPcs} pcs`,
+        `Total Uang Masuk      : ${formatRp(totRp)}`,
+        '============================'
+      ];
+      return lines.join('\n');
+    }
+
+    /* ----------------------------------------------------------
+       SALIN LAPORAN — Copy to Clipboard
+       ---------------------------------------------------------- */
+    document.getElementById('btnCopy').addEventListener('click', () => {
+      const text = buildReportText();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast('📋 Laporan berhasil disalin ke clipboard!'))
+          .catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    });
+
+    function fallbackCopy(text) {
+      /* Fallback for browsers without Clipboard API */
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('📋 Laporan berhasil disalin!');
+      } catch (e) {
+        showToast('❌ Gagal menyalin. Coba lagi.');
+      }
+      document.body.removeChild(ta);
+    }
+
+    /* ----------------------------------------------------------
+       UNDUH CSV — Download CSV via Blob API
+       ---------------------------------------------------------- */
+    document.getElementById('btnCsv').addEventListener('click', () => {
+      const now  = new Date();
+      const subG = state.gelas   * PRICE_GELAS;
+      const subP = state.plastik * PRICE_PLASTIK;
+      const totPcs = state.gelas + state.plastik;
+      const totRp  = subG + subP;
+
+      const rows = [];
+
+      /* Header section */
+      rows.push(['LAPORAN HARIAN ES TEH KELILING']);
+      rows.push(['Tanggal', formatDateId(now)]);
+      rows.push([]);
+      rows.push(['Ringkasan']);
+      rows.push(['Item', 'Jumlah (pcs)', 'Harga Satuan', 'Subtotal']);
+      rows.push(['Gelas',   state.gelas,   'Rp 5.000', formatRp(subG)]);
+      rows.push(['Plastik', state.plastik, 'Rp 3.500', formatRp(subP)]);
+      rows.push(['TOTAL',   totPcs,        '',          formatRp(totRp)]);
+      rows.push([]);
+      rows.push(['Log Riwayat Ketukan']);
+      rows.push(['Waktu', 'Jenis', 'Jumlah', 'Nilai']);
+
+      /* Log entries — oldest first in CSV */
+      for (const entry of state.log) {
+        const sign  = entry.delta > 0 ? '+' : '';
+        const label = entry.type === 'gelas' ? 'Gelas' : 'Plastik';
+        rows.push([
+          formatTimestamp(entry.ts),
+          label,
+          `${sign}${entry.delta}`,
+          `${sign}${formatRp(entry.price)}`
+        ]);
+      }
+
+      /* Encode to CSV string */
+      const csvContent = rows.map(row =>
+        row.map(cell => {
+          const s = String(cell);
+          /* Quote cells that contain commas, quotes, or newlines */
+          if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+            return '"' + s.replace(/"/g, '""') + '"';
+          }
+          return s;
+        }).join(',')
+      ).join('\r\n');
+
+      /* Blob download */
+      const BOM  = '\uFEFF'; /* UTF-8 BOM for Excel compatibility */
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `laporan-esteh-${isoDate(now)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('💾 File CSV berhasil diunduh!');
+    });
+
+    /* ----------------------------------------------------------
+       INIT — load persisted state and render
+       ---------------------------------------------------------- */
+    loadState();
+    render();
+
+  </script>
+</body>
+</html>
