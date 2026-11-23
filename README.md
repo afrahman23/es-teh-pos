@@ -1,27 +1,68 @@
-# es-teh-pos
+## Judul Capstone Project
 
-3 Layer Prompt
-### LAYER 1 — ROLE & CONTEXT
-Bertindaklah sebagai senior frontend dan mobile-first web engineer menggunakan IBM Bob.
-Nama proyek: "Kasir Kilat Es Teh Keliling", sebuah aplikasi web Point-of-Sale (POS) penghitung ketukan (tap-counter) untuk membantu pedagang keliling es-teh. Pedagang es-teh umumnya melayani gelombang pelanggan dalam jumlah banyak sekaligus sehingga tidak sempat mencatat dan menghitung secara manual berapa banyak kemasan gelas dan plastik yang telah terjual.
-Batasan utama: satu file HTML tunggal (single HTML file), hanya menggunakan inline CSS dan inline JS, tanpa pustaka (library) eksternal, tanpa framework, dan wajib berjalan 100% offline.
+**Kasir Kilat Es Teh Keliling**
 
-### LAYER 2 — TASK & REQUIREMENTS
-Bangun aplikasi tap-counter tanpa jeda (zero-latency) untuk melacak penjualan, riwayat transaksi, dan pendapatan harian pada dua varian kemasan es-teh:
-- Gelas = Rp 5.000
-- Plastik = Rp 3.500
+---
 
-Requirements:
-(1) Dua Tombol Aksi Utama: Dua tombol sentuh berukuran besar yang diletakkan berdampingan dengan label "GELAS" (Rp 5.000) dan "PLASTIK" (Rp 3.500) untuk ditekan pedagang setiap kali satu unit terjual saat melayani gelombang pembeli.
-(2) Penghitung Langsung (Live Counter) di Atas Setiap Tombol: Tepat di atas tombol "GELAS" dan tepat di atas tombol "PLASTIK", tampilkan angka penghitung langsung berukuran besar dan jelas yang menunjukkan jumlah unit terjual untuk masing-masing kemasan tersebut (beserta subtotalnya dalam Rupiah).
-(3) Efek Suara Kencringan Koin: Setiap ketukan pada salah satu tombol memicu efek suara kencringan uang koin logam yang jernih secara sintetis melalui Web Audio API (tanpa file audio eksternal, dilengkapi tombol mute/unmute).
-(4) Ringkasan Total Penjualan & Uang Masuk: Tampilkan panel ringkasan utama yang memuat gabungan total kemasan terjual (Total Kemasan Terjual) dan total uang yang masuk (Total Uang Masuk, diformat dalam Rupiah Indonesia, misalnya Rp 42.500).
-(5) Pengaman Jam Sibuk & Penyimpanan Otomatis: Sertakan tombol koreksi "-1" berukuran kecil pada masing-masing varian untuk mengantisipasi ketukan ganda yang tidak disengaja, tombol "Reset" dengan dialog konfirmasi untuk memulai shift baru, serta penyimpanan otomatis di localStorage agar data penjualan dan riwayat tidak hilang apabila halaman tidak sengaja dimuat ulang (refresh).
-(6) Log Riwayat Ketukan: Catat secara otomatis setiap ketukan (+1 Gelas, +1 Plastik, maupun koreksi -1) lengkap dengan stempel waktu lokal (HH:MM:SS, misalnya "14:05:22 — +1 Gelas (+Rp 5.000)") secara berurutan dari yang terbaru (reverse-chronological) di dalam panel riwayat ringkas yang dapat digulir (scrollable) di bagian bawah kontrol utama, dan simpan di localStorage.
-(7) Ekspor Ringkasan Harian: Sediakan dua tombol ekspor 100% offline di bagian bawah antarmuka:
-- "Salin Laporan": Menyalin teks ringkasan harian yang rapi dan terformat (tanggal, jumlah & subtotal Gelas, jumlah & subtotal Plastik, total kemasan terjual, serta total uang masuk) ke clipboard agar siap langsung ditempel ke WhatsApp atau catatan, disertai notifikasi toast singkat.
-- "Unduh CSV": Membuat dan mengunduh file .csv lokal (dengan nama `laporan-esteh-YYYY-MM-DD.csv`) yang berisi rincian ringkasan harian diikuti seluruh log riwayat ketukan berstempel waktu.
-Seluruh teks antarmuka (UI), label, stempel waktu, pesan notifikasi toast, dan format mata uang wajib menggunakan Bahasa Indonesia.
+## Ringkasan Project
 
-### LAYER 3 — CONSTRAINTS & OUTPUT
-Hasilkan satu file index.html lengkap. Gunakan CSS custom properties untuk tema tampilan, gaya kontras tinggi yang mudah dibaca di ruang terbuka di bawah sinar matahari terang (outdoor-readable), rasio kontras teks memenuhi standar WCAG AA, tata letak responsif mobile-first dengan tombol ekstra besar yang ramah ibu jari (menggunakan touch-action: manipulation untuk menghilangkan jeda ketukan pada perangkat seluler), gunakan native browser Blob API dan Clipboard API untuk ekspor offline, bebas dari console error, serta berikan komentar kode yang jelas di setiap bagian.
+Project Kasir Kilat Es Teh Keliling bertujuan menghadirkan aplikasi pencatatan penjualan (Point-of-Sale) berbasis tap-counter yang dapat dijalankan secara offline untuk pedagang es teh keliling. Project ini sebagai solusi sederhana atas permasalahan kesulitan pedagang dalam pencatatan transaksi secara manual ketika menghadapi lonjakan pembeli dalam satu waktu. Karena secara bersamaan tangan pedagang sibuk meracik pesanan tidak sempat menghitung jumlah kemasan gelas maupun plastik yang telah terjual dan perhitungan mengandalkan daya ingat.
+
+AI Agent IBM Bob dapat difungsikan sebagai autonomous senior frontend & mobile-first engineer yang merancang dan membangun keseluruhan aplikasi dalam format single-file (`index.html`) tanpa dependensi pustaka eksternal. Melalui instruksi terstruktur berbasis Prompt Layering, AI Agent mengimplementasikan antarmuka dua tombol transaksi utama (Gelas Rp 5.000 dan Plastik Rp 3.500), penghitung langsung di atas setiap tombol, efek suara kencringan koin sintetis berbasis, kalkulasi total kemasan dan uang masuk secara otomatis, log riwayat ketukan berstempel waktu, serta fitur ekspor laporan harian *offline* dalam format teks siap tempel dan file CSV.
+
+---
+
+## Problem Statement
+
+Kondisi Saat Ini: Pedagang es teh keliling umumnya beroperasi secara mandiri di titik-titik keramaian seperti area sekolah, perkantoran, pasar, atau pinggir jalan dengan pola kedatangan pembeli yang bergelombang secara bersamaan. Pada saat antrean padat, pedagang harus melakukan banyak tugas sekaligus dalam hitungan detik—menuang minuman, mengemas ke dalam gelas atau plastik, menyerahkan pesanan, serta menerima uang tunai dan menghitung kembalian—sehingga pencatatan penjualan masih mengandalkan ingatan semata atau penghitungan sisa kemasan di akhir hari.
+
+Dampak Apabila Tidak Ditangani: Tanpa mekanisme pencatatan yang praktis saat melayani gelombang pembeli, pedagang sangat rentan mengalami selisih hitung/human error antara jumlah uang tunai yang terkumpul dengan jumlah stok gelas maupun plastik yang berkurang. Dalam jangka pendek, pedagang tidak dapat mengetahui omzet riil harian secara pasti; dalam jangka panjang, kesalahan hitung berulang mengakibatkan kebocoran pendapatan, kesulitan mengevaluasi varian kemasan paling laris, serta terhambatnya perencanaan belanja stok bahan baku untuk hari berikutnya.
+
+---
+
+## Target Users
+
+Pengguna utama solusi ini adalah pedagang keliling es teh skala usaha mikro (UMKM) yang berjualan menggunakan gerobak dorong, sepeda motor, maupun lapak portable di area publik.
+
+Peran: Bertindak sebagai operator tunggal yang merangkap seluruh fungsi operasional sekaligus, mulai dari peracik minuman, pelayan pelanggan, kasir transaksi tunai, hingga pencatat pembukuan harian.
+
+Kebutuhan Utama:
+1. Mekanisme pencatatan penjualan instan hanya dengan satu sentuhan ibu jari (single-tap) tanpa perlu mengetik angka atau berpindah layar.
+2. Umpan balik suara sebagai konfirmasi bahwa ketukan telah tercatat saat pandangan mata pedagang tetap tertuju pada pelanggan dan proses peracikan.
+3. Penghitungan otomatis total kemasan terjual dan total uang masuk, dilengkapi pengaman koreksi jika terjadi salah ketuk, riwayat waktu transaksi, serta ekspor rekap harian tanpa memerlukan kuota internet.
+
+
+Karakteristik Pengguna & Lingkungan Kerja:
+1. Menggunakan ponsel pintar (smartphone) layar sentuh kelas pemula hingga menengah dengan kapasitas penyimpanan dan spesifikasi perangkat keras yang terbatas.
+2. Beroperasi di ruang terbuka (outdoor) di bawah paparan sinar matahari langsung sehingga membutuhkan tampilan antarmuka dengan tingkat kontras warna yang tinggi dan mudah terbaca sekilas.
+3. Bekerja dalam kondisi mobilitas tinggi dengan jari yang sering basah oleh es atau air, sehingga membutuhkan tombol berukuran ekstra besar yang responsif terhadap ketukan cepat berturut-turut.
+
+
+
+---
+
+## Arsitektur Prompt (Prompt Layering)
+
+Pengembangan aplikasi melalui IBM Bob dirancang menggunakan arsitektur 3-Layer Prompting untuk memastikan AI Agent menghasilkan kode yang menyeluruh, ringan, bebas dependensi jaringan, dan sesuai dengan konteks penggunaan di lapangan:
+
+Layer 1 — Role & Context (Peran & Konteks Sistem)
+- Yang Diterapkan: Menetapkan peran AI Agent sebagai senior frontend dan mobile-first web engineer dengan identitas proyek "Kasir Kilat Es Teh". Layer ini memuat konteks masalah nyata pedagang es teh keliling saat menghadapi gelombang pelanggan serta batasan arsitektur mutlak: satu file `index.html` (inline CSS & inline JS), nol pustaka atau framework eksternal, dan beroperasi 100% offline.
+- Tujuan Layer: Mengarahkan keputusan arsitektural AI Agent agar memilih pendekatan teknologi browser bawaan (native) yang ringan dan instan dibuka tanpa koneksi internet, sekaligus menyelaraskan desain antarmuka dengan keterbatasan fisik dan waktu pengguna di lapangan.
+
+
+Layer 2 — Task & Requirements (Tugas & Spesifikasi Fungsional)
+- Yang Diterapkan: Menjabarkan tujuh spesifikasi fungsional secara terperinci:
+1. Dua tombol aksi utama berdampingan untuk Gelas (Rp 5.000) dan Plastik (Rp 3.500).
+2. Tampilan live counter jumlah unit terjual beserta subtotal Rupiah tepat di atas masing-masing tombol.
+3. Sintesis suara kencringan uang koin melalui Web Audio API, setiap kali tombol ditekan (disertai kontrol mute/unmute).
+4. Panel ringkasan otomatis untuk Total Kemasan Terjual dan Total Uang Masuk dalam format mata uang Rupiah.
+5. Pengaman jam sibuk berupa tombol koreksi `-1` per varian, tombol Reset dengan dialog konfirmasi, dan penyimpanan otomatis ke `localStorage`.
+6. Panel Log Riwayat Ketukan yang mencatat setiap penambahan (`+1`) maupun koreksi (`-1`) lengkap dengan stempel waktu lokal (`HH:MM:SS`).
+7. Dua fitur Ekspor Ringkasan Harian tanpa internet, yakni Salin Laporan (teks ringkasan siap tempel ke WhatsApp) dan Unduh CSV (file laporan lengkap beserta log transaksi).
+
+- Tujuan Layer: Menghilangkan ambiguitas kebutuhan pengguna dan memastikan AI Agent menerjemahkan setiap aturan bisnis—mulai dari struktur harga, posisi elemen visual, umpan balik audio, mitigasi kesalahan input, hingga pelaporan harian—menjadi fitur yang terintegrasi penuh dalam bahasa Indonesia.
+
+
+Layer 3 — Constraints & Output (Batasan Teknis & Standar Kualitas Keluaran)
+- Yang Diterapkan: Mengunci format keluaran menjadi satu file `index.html` utuh dengan standar rekayasa penggunaan CSS custom properties, skema warna kontras untuk keterbacaan di bawah sinar matahari, standar aksesibilitas teks WCAG AA, tata letak responsif mobile-first dengan `touch-action: manipulation` untuk mencegah jeda ketukan (tap delay) maupun zoom tidak sengaja, pemanfaatan native browser Blob & Clipboard API, nol console error, serta struktur komentar kode yang rapi per bagian.
+- Tujuan Layer: Berfungsi sebagai pagar pengaman kualitas (quality guardrail) agar kode yang dihasilkan AI Agent stabil dijalankan langsung di browser ponsel pintar, responsif terhadap ketukan jari berkecepatan tinggi, mudah dipelihara, dan siap pakai tanpa tahap kompilasi tambahan.
