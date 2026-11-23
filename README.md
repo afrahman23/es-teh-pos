@@ -2,6 +2,8 @@
 
 **Kasir Kilat Es Teh Keliling**
 
+**Demo:** [esteh.orbit.web.id](https://esteh.orbit.web.id)
+
 ---
 
 ## Ringkasan Project
