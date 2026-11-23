@@ -1,0 +1,9 @@
+services:
+  kasir-kilat:
+    image: nginx:alpine
+    container_name: kasir-kilat
+    ports:
+      - "8081:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+    restart: unless-stopped

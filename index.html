@@ -81,8 +81,8 @@
       letter-spacing: 0;
     }
 
-    /* Mute toggle button */
-    #btnMute {
+    /* Header icon buttons (mute + settings) */
+    .header-btn {
       background: var(--clr-surface-2);
       border: 1px solid var(--clr-border);
       border-radius: var(--radius-sm);
@@ -97,7 +97,136 @@
       touch-action: manipulation;
       flex-shrink: 0;
     }
-    #btnMute:active { opacity: .7; }
+    .header-btn:active { opacity: .7; }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* ============================================================
+       PRICE SETTINGS MODAL
+       ============================================================ */
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #modalOverlay.open { display: flex; }
+
+    #modalCard {
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px 18px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.7);
+      animation: modalIn .18s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0)  scale(1);    }
+    }
+
+    #modalCard h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--clr-text);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .price-field {
+      margin-bottom: 16px;
+    }
+    .price-field label {
+      display: block;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--clr-muted);
+      margin-bottom: 6px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .price-field .input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--clr-surface-2);
+      border: 1.5px solid var(--clr-border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+    .price-field .input-wrap:focus-within {
+      border-color: var(--clr-accent-cyan);
+    }
+    .price-field .input-prefix {
+      padding: 0 10px;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--clr-muted);
+      background: var(--clr-surface-2);
+      border-right: 1px solid var(--clr-border);
+      white-space: nowrap;
+      line-height: 46px;
+    }
+    .price-field input[type="number"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--clr-text);
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 10px 12px;
+      outline: none;
+      min-width: 0;
+      /* remove native spinners */
+      -moz-appearance: textfield;
+    }
+    .price-field input[type="number"]::-webkit-inner-spin-button,
+    .price-field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .modal-hint {
+      font-size: .75rem;
+      color: var(--clr-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    #btnModalCancel {
+      background: var(--clr-surface-2);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-sm);
+      color: var(--clr-muted);
+      font-size: .9rem;
+      font-weight: 600;
+      padding: 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    #btnModalSave {
+      background: var(--clr-accent-cyan);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #001a1b;
+      font-size: .9rem;
+      font-weight: 700;
+      padding: 12px;
+      cursor: pointer;
+      touch-action: manipulation;
+      letter-spacing: .03em;
+    }
+    #btnModalCancel:active { opacity: .7; }
+    #btnModalSave:active   { filter: brightness(.88); }
 
     /* ============================================================
        MAIN SCROLL AREA
@@ -422,8 +551,48 @@
       ☕ Kasir Kilat
       <small>Es Teh Keliling</small>
     </div>
-    <button id="btnMute" aria-label="Mute / Unmute suara" title="Mute/Unmute">🔔</button>
+    <div class="header-actions">
+      <button class="header-btn" id="btnSettings" aria-label="Atur harga jual" title="Atur Harga">⚙️</button>
+      <button class="header-btn" id="btnMute" aria-label="Mute / Unmute suara" title="Mute/Unmute">🔔</button>
+    </div>
   </header>
+
+  <!-- ============================================================
+       PRICE SETTINGS MODAL
+       ============================================================ -->
+  <div id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="modalCard">
+      <h3 id="modalTitle">⚙️ Atur Harga Jual</h3>
+
+      <div class="price-field">
+        <label for="inputHargaGelas">Harga per Gelas</label>
+        <div class="input-wrap">
+          <span class="input-prefix">Rp</span>
+          <input type="number" id="inputHargaGelas" inputmode="numeric" min="0" step="500"
+                 placeholder="5000" aria-label="Harga per gelas dalam Rupiah" />
+        </div>
+      </div>
+
+      <div class="price-field">
+        <label for="inputHargaPlastik">Harga per Plastik</label>
+        <div class="input-wrap">
+          <span class="input-prefix">Rp</span>
+          <input type="number" id="inputHargaPlastik" inputmode="numeric" min="0" step="500"
+                 placeholder="3500" aria-label="Harga per plastik dalam Rupiah" />
+        </div>
+      </div>
+
+      <p class="modal-hint">
+        Harga baru hanya berlaku untuk ketukan berikutnya.<br>
+        Data yang sudah tercatat tidak akan berubah.
+      </p>
+
+      <div class="modal-actions">
+        <button id="btnModalCancel">Batal</button>
+        <button id="btnModalSave">💾 Simpan Harga</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================
        MAIN CONTENT
@@ -514,20 +683,26 @@
        ============================================================ -->
   <script>
     /* ----------------------------------------------------------
-       CONSTANTS & PRICES
+       STORAGE KEY & DEFAULT PRICES
        ---------------------------------------------------------- */
-    const PRICE_GELAS   = 5000;
-    const PRICE_PLASTIK = 3500;
-    const LS_KEY        = 'kasirkilat_v1';
+    const LS_KEY             = 'kasirkilat_v1';
+    const DEFAULT_PRICE_GELAS   = 5000;
+    const DEFAULT_PRICE_PLASTIK = 3500;
 
     /* ----------------------------------------------------------
-       STATE
+       STATE  (prices are now part of state so they persist)
        ---------------------------------------------------------- */
     let state = {
-      gelas:   0,
-      plastik: 0,
-      log:     []   // [{ts, type, delta, price}]
+      gelas:        0,
+      plastik:      0,
+      priceGelas:   DEFAULT_PRICE_GELAS,
+      pricePlastik: DEFAULT_PRICE_PLASTIK,
+      log:          []   // [{ts, type, delta, price}]
     };
+
+    /* Convenience getters — always read live from state */
+    function PRICE_GELAS()   { return state.priceGelas;   }
+    function PRICE_PLASTIK() { return state.pricePlastik; }
 
     /* ----------------------------------------------------------
        LOCALSTORAGE PERSISTENCE
@@ -541,9 +716,11 @@
         const raw = localStorage.getItem(LS_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (typeof parsed.gelas === 'number')   state.gelas   = parsed.gelas;
-          if (typeof parsed.plastik === 'number') state.plastik = parsed.plastik;
-          if (Array.isArray(parsed.log))           state.log     = parsed.log;
+          if (typeof parsed.gelas        === 'number') state.gelas        = parsed.gelas;
+          if (typeof parsed.plastik      === 'number') state.plastik      = parsed.plastik;
+          if (typeof parsed.priceGelas   === 'number' && parsed.priceGelas   > 0) state.priceGelas   = parsed.priceGelas;
+          if (typeof parsed.pricePlastik === 'number' && parsed.pricePlastik > 0) state.pricePlastik = parsed.pricePlastik;
+          if (Array.isArray(parsed.log))                state.log          = parsed.log;
         }
       } catch (e) { /* ignore corrupt data */ }
     }
@@ -666,20 +843,26 @@
        UI RENDER
        ---------------------------------------------------------- */
     function render() {
-      const subG = state.gelas   * PRICE_GELAS;
-      const subP = state.plastik * PRICE_PLASTIK;
+      const subG = state.gelas   * PRICE_GELAS();
+      const subP = state.plastik * PRICE_PLASTIK();
       const totPcs = state.gelas + state.plastik;
       const totRp  = subG + subP;
 
       /* Live counters */
-      document.getElementById('countGelas').textContent   = state.gelas;
+      document.getElementById('countGelas').textContent    = state.gelas;
       document.getElementById('subtotalGelas').textContent = formatRp(subG);
       document.getElementById('countPlastik').textContent  = state.plastik;
       document.getElementById('subtotalPlastik').textContent = formatRp(subP);
 
+      /* Button price labels (kept live so they reflect current prices) */
+      document.getElementById('btnGelas').querySelector('.btn-price').textContent
+        = formatRp(PRICE_GELAS());
+      document.getElementById('btnPlastik').querySelector('.btn-price').textContent
+        = formatRp(PRICE_PLASTIK());
+
       /* Summary panel */
-      document.getElementById('sumGelas').textContent   = `${state.gelas} pcs — ${formatRp(subG)}`;
-      document.getElementById('sumPlastik').textContent = `${state.plastik} pcs — ${formatRp(subP)}`;
+      document.getElementById('sumGelas').textContent    = `${state.gelas} pcs — ${formatRp(subG)}`;
+      document.getElementById('sumPlastik').textContent  = `${state.plastik} pcs — ${formatRp(subP)}`;
       document.getElementById('sumTotalPcs').textContent = `${totPcs} pcs`;
       document.getElementById('sumTotalRp').textContent  = formatRp(totRp);
 
@@ -735,7 +918,7 @@
        RECORD LOG ENTRY
        ---------------------------------------------------------- */
     function recordLog(type, delta) {
-      const price = delta * (type === 'gelas' ? PRICE_GELAS : PRICE_PLASTIK);
+      const price = delta * (type === 'gelas' ? PRICE_GELAS() : PRICE_PLASTIK());
       state.log.push({ ts: new Date().toISOString(), type, delta, price });
     }
 
@@ -826,8 +1009,8 @@
        ---------------------------------------------------------- */
     function buildReportText() {
       const now    = new Date();
-      const subG   = state.gelas   * PRICE_GELAS;
-      const subP   = state.plastik * PRICE_PLASTIK;
+      const subG   = state.gelas   * PRICE_GELAS();
+      const subP   = state.plastik * PRICE_PLASTIK();
       const totPcs = state.gelas + state.plastik;
       const totRp  = subG + subP;
 
@@ -837,8 +1020,8 @@
         '============================',
         `Tanggal   : ${formatDateId(now)}`,
         '----------------------------',
-        `Gelas     : ${state.gelas} pcs x Rp 5.000 = ${formatRp(subG)}`,
-        `Plastik   : ${state.plastik} pcs x Rp 3.500 = ${formatRp(subP)}`,
+        `Gelas     : ${state.gelas} pcs x ${formatRp(PRICE_GELAS())} = ${formatRp(subG)}`,
+        `Plastik   : ${state.plastik} pcs x ${formatRp(PRICE_PLASTIK())} = ${formatRp(subP)}`,
         '----------------------------',
         `Total Kemasan Terjual : ${totPcs} pcs`,
         `Total Uang Masuk      : ${formatRp(totRp)}`,
@@ -882,8 +1065,8 @@
        ---------------------------------------------------------- */
     document.getElementById('btnCsv').addEventListener('click', () => {
       const now  = new Date();
-      const subG = state.gelas   * PRICE_GELAS;
-      const subP = state.plastik * PRICE_PLASTIK;
+      const subG = state.gelas   * PRICE_GELAS();
+      const subP = state.plastik * PRICE_PLASTIK();
       const totPcs = state.gelas + state.plastik;
       const totRp  = subG + subP;
 
@@ -895,8 +1078,8 @@
       rows.push([]);
       rows.push(['Ringkasan']);
       rows.push(['Item', 'Jumlah (pcs)', 'Harga Satuan', 'Subtotal']);
-      rows.push(['Gelas',   state.gelas,   'Rp 5.000', formatRp(subG)]);
-      rows.push(['Plastik', state.plastik, 'Rp 3.500', formatRp(subP)]);
+      rows.push(['Gelas',   state.gelas,   formatRp(PRICE_GELAS()),   formatRp(subG)]);
+      rows.push(['Plastik', state.plastik, formatRp(PRICE_PLASTIK()), formatRp(subP)]);
       rows.push(['TOTAL',   totPcs,        '',          formatRp(totRp)]);
       rows.push([]);
       rows.push(['Log Riwayat Ketukan']);
@@ -939,6 +1122,63 @@
       URL.revokeObjectURL(url);
 
       showToast('💾 File CSV berhasil diunduh!');
+    });
+
+    /* ----------------------------------------------------------
+       PRICE SETTINGS MODAL
+       ---------------------------------------------------------- */
+    const modalOverlay    = document.getElementById('modalOverlay');
+    const inputHargaGelas   = document.getElementById('inputHargaGelas');
+    const inputHargaPlastik = document.getElementById('inputHargaPlastik');
+
+    function openModal() {
+      /* Pre-fill inputs with current prices */
+      inputHargaGelas.value   = state.priceGelas;
+      inputHargaPlastik.value = state.pricePlastik;
+      modalOverlay.classList.add('open');
+      /* Focus first input after animation */
+      setTimeout(() => inputHargaGelas.focus(), 180);
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('open');
+    }
+
+    document.getElementById('btnSettings').addEventListener('click', openModal);
+    document.getElementById('btnModalCancel').addEventListener('click', closeModal);
+
+    /* Close on overlay backdrop tap (outside the card) */
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    /* Close on Escape key */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
+    });
+
+    document.getElementById('btnModalSave').addEventListener('click', () => {
+      const rawG = parseInt(inputHargaGelas.value,   10);
+      const rawP = parseInt(inputHargaPlastik.value, 10);
+
+      /* Validation: must be positive integers */
+      if (!Number.isFinite(rawG) || rawG <= 0) {
+        inputHargaGelas.focus();
+        showToast('⚠️ Harga Gelas tidak valid. Masukkan angka lebih dari 0.');
+        return;
+      }
+      if (!Number.isFinite(rawP) || rawP <= 0) {
+        inputHargaPlastik.focus();
+        showToast('⚠️ Harga Plastik tidak valid. Masukkan angka lebih dari 0.');
+        return;
+      }
+
+      state.priceGelas   = rawG;
+      state.pricePlastik = rawP;
+      saveState();
+      render();
+      closeModal();
+      showToast(`✅ Harga diperbarui: Gelas ${formatRp(rawG)}, Plastik ${formatRp(rawP)}`);
     });
 
     /* ----------------------------------------------------------

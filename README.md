@@ -66,3 +66,42 @@ Layer 2 — Task & Requirements (Tugas & Spesifikasi Fungsional)
 Layer 3 — Constraints & Output (Batasan Teknis & Standar Kualitas Keluaran)
 - Yang Diterapkan: Mengunci format keluaran menjadi satu file `index.html` utuh dengan standar rekayasa penggunaan CSS custom properties, skema warna kontras untuk keterbacaan di bawah sinar matahari, standar aksesibilitas teks WCAG AA, tata letak responsif mobile-first dengan `touch-action: manipulation` untuk mencegah jeda ketukan (tap delay) maupun zoom tidak sengaja, pemanfaatan native browser Blob & Clipboard API, nol console error, serta struktur komentar kode yang rapi per bagian.
 - Tujuan Layer: Berfungsi sebagai pagar pengaman kualitas (quality guardrail) agar kode yang dihasilkan AI Agent stabil dijalankan langsung di browser ponsel pintar, responsif terhadap ketukan jari berkecepatan tinggi, mudah dipelihara, dan siap pakai tanpa tahap kompilasi tambahan.
+
+---
+
+## Iterasi Prompt
+
+Penyempurnaan dilakukan menggunakan pendekatan isolated single-layer iteration, yaitu memodifikasi satu lapisan layer spesifik saja pada setiap siklus perbaikan sambil mengunci layer lainnya agar tetap utuh. Pendekatan ini mencegah terjadinya regresi kode dan menjaga agar solusi tetap mematuhi arsitektur single-file offline.
+
+Iterasi 1: Desain terasa generik  → revisi LAYER 3 saja
+- Ubah nama gelas dengan gambar gelas+sedotan dan nama plastik dengan bungkus plastik+sedotan,  tanpa mengubah Layer 1 & 2.
+
+- Alasan Perubahan: Hasil awal tampilan tombol hanya mengandalkan teks yang terasa terlalu generik. Dalam kondisi jam sibuk di ruang terbuka, pedagang membutuhkan pembeda visual yang intuitif agar dapat membedakan tombol kemasan dalam sekilas pandang tanpa risiko salah ketuk.
+
+- Dampak terhadap Kualitas Jawaban AI Agent: IBM Bob mengeksekusi pembaruan antarmuka secara presisi tanpa mengganggu logika pada struktur Layer 2. AI Agent juga konsisten mematuhi batasan tanpa dependensi eksternal Layer 1 dengan membangun grafik vektor secara inline* SVG menggunakan atribut `stroke="currentColor"`, sehingga warna ikon otomatis mengikuti kontras warna tombol masing-masing varian tanpa membutuhkan file gambar tambahan.
+
+Iterasi 2: Fitur kurang lengkap  → revisi LAYER 2 saja
+- Tambahkan requirement detail (panel pop up untuk set variabel harga per gelas dan per bungkus plastik, jadi harga dapat diset jika ada kenaikan/penurunan harga penjualan per gelas/plastik) tanpa mengubah Layer 1 & 3.
+
+- Alasan Perubahan: Awalnya menetapkan harga jual statis. Pedagang keliling membutuhkan  penyesuaian harga jual sewaktu-waktu apabila terjadi kenaikan biaya bahan baku (gula, teh, es batu, kemasan) atau perpindahan titik lokasi jualan.
+
+- Dampak terhadap Kualitas Jawaban AI Agent: IBM Bob menghasilkan logika manajemen variabel harga yang matang sekaligus menjaga integritas pembukuan harian tanpa merusak desain visual pada Layer 3. AI Agent secara mandiri menerapkan aturan proteksi riwayat transaksi di mana perubahan harga hanya berlaku untuk ketukan berikutnya sehingga nilai transaksi sebelumnya tidak berubah, melengkapi validasi input (menolak angka nol atau negatif), menyimpan konfigurasi harga ke `localStorage`, serta menyinkronkan harga terbaru ke label tombol, *subtotal*, ringkasan omzet, hingga fitur ekspor laporan teks dan CSV.
+
+Pemisahan iterasi berdasarkan lapisan terbukti membuat respon AI Agent jauh lebih terkendali dan deterministik. Alih-alih menulis ulang keseluruhan kode dari awal yang berisiko memunculkan bug baru, IBM Bob mampu bertindak layaknya engineer profesional yang hanya membedah modul visual saat diminta memperbaiki estetika (Layer 3) dan hanya memperluas logika bisnis saat diminta menambah fitur operasional (Layer 2).
+
+
+Dengan penambahan **Iterasi 3**, evolusi *prompting* pada proyek ini mencakup tiga dimensi rekayasa secara utuh: penyempurnaan antarmuka visual pada **Layer 3** (Iterasi 1), perluasan logika bisnis harga dinamis pada **Layer 2** (Iterasi 2), serta otomatisasi infrastruktur *local hosting* berbasis kontainer untuk pengujian operasional yang akurat (Iterasi 3).
+
+
+Iterasi 3: Kontainerisasi Lokal & Deployment via OrbStack
+- Menambahkan instruksi operasional di luar kode antarmuka (post-generation deployment) dengan mengarahkan AI Agent untuk membuat berkas konfigurasi `compose.yaml` pada direktori proyek lokal (`~/lab/es-teh-pos`) agar berkas `index.html` dapat dijalankan sebagai layanan web lokal di atas OrbStack** pada sistem operasi macOS.
+- Alasan Perubahan: Pengujian aplikasi diperlukan web server berbasis kontainer yang ringan agar aplikasi mudah dipublish di layanan VPS.
+- Dampak terhadap Kualitas Jawaban AI Agent: IBM Bob menunjukkan kesadaran konteks lingkungan eksekusi (environment awareness) sekaligus menerapkan praktik rekayasa kontainer yang efisien:
+- Arsitektur Kontainer Minimalis: Memilih image `nginx:alpine` (~10 MB) tanpa tahap kompilasi (`Dockerfile`), menjaga waktu *startup* tetap instan dan hemat penyimpanan. Menerapkan bind mount bersifat read-only (`./index.html:/usr/share/nginx/html/index.html:ro`) alih-alih menyalin berkas ke dalam image. 
+- Dilengkapi tabel referensi cepat perintah CLI 
+| Perintah | Fungsi |
+|---|---|
+| `docker compose up -d` | Jalankan di background |
+| `docker compose down` | Stop & hapus container |
+| `docker compose logs -f` | Lihat log nginx |
+| `docker compose restart` | Restart container |
